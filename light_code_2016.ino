@@ -1,12 +1,4 @@
-`void setup() {
-  // put your setup code here, to run once:
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}#include <Wire.h>
+#include <Wire.h>
 #include "FastLED.h"
 
 
@@ -28,15 +20,15 @@ FASTLED_USING_NAMESPACE
 #define DATA_PIN    3
 #define CLK_PIN   4
 #define LED_TYPE    APA102
-#define COLOR_ORDER GRB
-#define NUM_LEDS    64
+#define COLOR_ORDER BGR
+#define NUM_LEDS    20
 CRGB leds[NUM_LEDS];
-
+int index=0;
 #define BRIGHTNESS          96
 #define FRAMES_PER_SECOND  120
 
 void setup() {
-  delay(3000); // 3 second delay for recovery
+  delay(2000); // 3 second delay for recovery
   
   // tell FastLED about the LED strip configuration
   FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -51,7 +43,7 @@ void setup() {
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
 typedef void (*SimplePatternList[])();
-SimplePatternList gPatterns = {solidRed, solidGreen, solidBlue, solidGreen, juggle, bpm };
+SimplePatternList gPatterns = {cylon, solidGreen, solidBlue, theaterChase, juggle, bpm };
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
@@ -101,10 +93,49 @@ void solidBlue()
   }
 }
 
+void cylon()
+{
+  int pos = index % NUM_LEDS;
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    if (i >= pos && i < (pos + 5))
+    {
+      leds[i] = CRGB::Green;
+    }
+    else
+    {
+      leds[i] = CRGB::Black;
+    }
+  }
+  index++;
+  delay(50);
+}
+void theaterChase()
+{
+    for (int n=0; n<NUM_LEDS; n++) {
+    if ((n+index) % 3 ==0) {
+      leds[n] = CRGB::Green;
+    }
+    else {
+      leds[n] = CRGB::Black;
+    }
+  }
+  index++;
+  delay(100);
+}
 
 
 
-
+void fade()
+{
+  FastLED.setBrightness(cubicwave8(index));
+  CRGB foo(5, 5, 100);
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = foo;
+  }
+  index++;
+}
 
 void nextPattern()
 {
